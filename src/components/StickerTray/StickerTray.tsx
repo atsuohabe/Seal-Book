@@ -1,4 +1,3 @@
-import { useDraggable } from '@dnd-kit/core';
 import type { StickerDef } from '../../types';
 import { StickerView } from '../Sticker/Sticker';
 import styles from './StickerTray.module.css';
@@ -7,10 +6,16 @@ interface StickerTrayProps {
   inventory: StickerDef[];
   canGacha: boolean;
   onGacha: () => void;
+  onPointerDown: (
+    e: React.PointerEvent,
+    sticker: StickerDef,
+    source: 'tray' | 'page',
+    instanceId?: string,
+  ) => void;
   isTimeUp: boolean;
 }
 
-export function StickerTray({ inventory, canGacha, onGacha, isTimeUp }: StickerTrayProps) {
+export function StickerTray({ inventory, canGacha, onGacha, onPointerDown, isTimeUp }: StickerTrayProps) {
   return (
     <div className={styles.tray}>
       <button
@@ -28,45 +33,17 @@ export function StickerTray({ inventory, canGacha, onGacha, isTimeUp }: StickerT
       )}
 
       {inventory.map((sticker, index) => (
-        <DraggableTraySticker
+        <div
           key={`${sticker.id}-${index}`}
-          sticker={sticker}
-          index={index}
-          disabled={isTimeUp}
-        />
+          className={styles.draggableSticker}
+          onPointerDown={(e) => {
+            if (!isTimeUp) onPointerDown(e, sticker, 'tray');
+          }}
+          style={{ touchAction: 'none' }}
+        >
+          <StickerView sticker={sticker} />
+        </div>
       ))}
-    </div>
-  );
-}
-
-function DraggableTraySticker({
-  sticker,
-  index,
-  disabled,
-}: {
-  sticker: StickerDef;
-  index: number;
-  disabled: boolean;
-}) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `tray-${sticker.id}-${index}`,
-    data: {
-      source: 'tray',
-      sticker,
-      index,
-    },
-    disabled,
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className={styles.draggableSticker}
-      style={{ opacity: isDragging ? 0.3 : 1 }}
-    >
-      <StickerView sticker={sticker} />
     </div>
   );
 }

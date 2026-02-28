@@ -1,13 +1,4 @@
 import { useState, useCallback, useRef } from 'react';
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import type { StickerDef } from './types';
 import { useGameState } from './hooks/useGameState';
 import { useTimer } from './hooks/useTimer';
@@ -20,6 +11,14 @@ import { PageNavigator } from './components/PageNavigator/PageNavigator';
 import { Timer } from './components/Timer/Timer';
 import { GachaModal } from './components/GachaModal/GachaModal';
 import styles from './App.module.css';
+
+export interface DragInfo {
+  sticker: StickerDef;
+  source: 'tray' | 'page';
+  instanceId?: string;
+  currentX: number;
+  currentY: number;
+}
 
 export default function App() {
   const {
@@ -42,67 +41,52 @@ export default function App() {
     updatePlayTime
   );
 
-  const [activeDragSticker, setActiveDragSticker] = useState<StickerDef | null>(null);
+  const [drag, setDrag] = useState<DragInfo | null>(null);
   const [gachaStickers, setGachaStickers] = useState<StickerDef[] | null>(null);
   const albumRef = useRef<HTMLDivElement>(null);
 
-  // Start timer on first interaction
   const ensureTimerStarted = useCallback(() => {
-    if (!isRunning && !isTimeUp) {
-      start();
-    }
+    if (!isRunning && !isTimeUp) start();
   }, [isRunning, isTimeUp, start]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
-  );
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
+  const handlePointerDown = useCallback((
+    e: React.PointerEvent,
+    sticker: StickerDef,
+    source: 'tray' | 'page',
+    instanceId?: string,
+  ) => {
+    if (isTimeUp) return;
     ensureTimerStarted();
-    const data = event.active.data.current;
-    if (data?.sticker) {
-      setActiveDragSticker(data.sticker as StickerDef);
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    setDrag({ sticker, source, instanceId, currentX: e.clientX, currentY: e.clientY });
+  }, [isTimeUp, ensureTimerStarted]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!drag) return;
+    setDrag(prev => prev ? { ...prev, currentX: e.clientX, currentY: e.clientY } : null);
+  }, [drag]);
+
+  const handlePointerUp = useCallback(() => {
+    if (!drag || !albumRef.current) {
+      setDrag(null);
+      return;
     }
-  }, [ensureTimerStarted]);
+    const rect = albumRef.current.getBoundingClientRect();
+    const { currentX, currentY } = drag;
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    setActiveDragSticker(null);
-    const { active, over } = event;
-    if (!over) return;
+    if (currentX >= rect.left && currentX <= rect.right &&
+        currentY >= rect.top && currentY <= rect.bottom) {
+      const xPct = Math.max(5, Math.min(95, ((currentX - rect.left) / rect.width) * 100));
+      const yPct = Math.max(5, Math.min(95, ((currentY - rect.top) / rect.height) * 100));
 
-    const data = active.data.current;
-    if (!data) return;
-
-    // Only drop on album page
-    if (over.data.current?.type !== 'album-page') return;
-
-    // Get drop position relative to album container
-    const rect = over.rect;
-    const activatorEvent = event.activatorEvent;
-
-    let dropX: number;
-    let dropY: number;
-    if (activatorEvent instanceof MouseEvent || activatorEvent instanceof PointerEvent) {
-      dropX = activatorEvent.clientX + (event.delta?.x || 0);
-      dropY = activatorEvent.clientY + (event.delta?.y || 0);
-    } else if (activatorEvent instanceof TouchEvent && activatorEvent.touches.length > 0) {
-      dropX = activatorEvent.touches[0].clientX + (event.delta?.x || 0);
-      dropY = activatorEvent.touches[0].clientY + (event.delta?.y || 0);
-    } else {
-      dropX = rect.left + rect.width / 2;
-      dropY = rect.top + rect.height / 2;
+      if (drag.source === 'tray') {
+        placeSticker(drag.sticker, xPct, yPct);
+      } else if (drag.source === 'page' && drag.instanceId) {
+        moveSticker(drag.instanceId, xPct, yPct);
+      }
     }
-
-    const xPercent = Math.max(5, Math.min(95, ((dropX - rect.left) / rect.width) * 100));
-    const yPercent = Math.max(5, Math.min(95, ((dropY - rect.top) / rect.height) * 100));
-
-    if (data.source === 'tray') {
-      placeSticker(data.sticker as StickerDef, xPercent, yPercent);
-    } else if (data.source === 'page' && data.instanceId) {
-      moveSticker(data.instanceId as string, xPercent, yPercent);
-    }
-  }, [placeSticker, moveSticker]);
+    setDrag(null);
+  }, [drag, placeSticker, moveSticker]);
 
   const handleGacha = useCallback(() => {
     ensureTimerStarted();
@@ -113,59 +97,71 @@ export default function App() {
     setLastGachaDate(today);
   }, [ensureTimerStarted, state.gachaCount, addToInventory, setLastGachaDate]);
 
-  const handleGachaClose = useCallback(() => {
-    setGachaStickers(null);
-  }, []);
-
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className={styles.app} onClick={ensureTimerStarted}>
-        <header className={styles.header}>
-          <div className={styles.title}>シールちょう</div>
-          <Timer
-            remainingMinutes={remainingMinutes}
-            remainingSeconds={remainingSeconds}
-            isTimeUp={isTimeUp}
-          />
-        </header>
+    <div
+      className={styles.app}
+      onClick={ensureTimerStarted}
+      onPointerMove={drag ? handlePointerMove : undefined}
+      onPointerUp={drag ? handlePointerUp : undefined}
+      onPointerCancel={drag ? () => setDrag(null) : undefined}
+      style={{ touchAction: drag ? 'none' : undefined }}
+    >
+      <header className={styles.header}>
+        <div className={styles.title}>シールちょう</div>
+        <Timer
+          remainingMinutes={remainingMinutes}
+          remainingSeconds={remainingSeconds}
+          isTimeUp={isTimeUp}
+        />
+      </header>
 
-        <div className={styles.albumArea} ref={albumRef}>
-          <AlbumPage
-            page={currentPage}
-            onRemoveSticker={removeSticker}
-            isTimeUp={isTimeUp}
-          />
-          <PageNavigator
-            currentIndex={state.currentPageIndex}
-            totalPages={state.pages.length}
-            onPrev={prevPage}
-            onNext={nextPage}
-            onAddPage={addPage}
-          />
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.inventoryCount}>
-            もちもの: {state.inventory.length}枚
-          </div>
-          <StickerTray
-            inventory={state.inventory}
-            canGacha={canGacha}
-            onGacha={handleGacha}
-            isTimeUp={isTimeUp}
-          />
-        </div>
+      <div className={styles.albumArea}>
+        <AlbumPage
+          ref={albumRef}
+          page={currentPage}
+          onRemoveSticker={removeSticker}
+          onPointerDown={handlePointerDown}
+          isTimeUp={isTimeUp}
+        />
+        <PageNavigator
+          currentIndex={state.currentPageIndex}
+          totalPages={state.pages.length}
+          onPrev={prevPage}
+          onNext={nextPage}
+          onAddPage={addPage}
+        />
       </div>
 
-      <DragOverlay dropAnimation={null}>
-        {activeDragSticker && (
-          <StickerView sticker={activeDragSticker} />
-        )}
-      </DragOverlay>
+      <div className={styles.footer}>
+        <div className={styles.inventoryCount}>
+          もちもの: {state.inventory.length}枚
+        </div>
+        <StickerTray
+          inventory={state.inventory}
+          canGacha={canGacha}
+          onGacha={handleGacha}
+          onPointerDown={handlePointerDown}
+          isTimeUp={isTimeUp}
+        />
+      </div>
+
+      {drag && (
+        <div style={{
+          position: 'fixed',
+          left: drag.currentX,
+          top: drag.currentY,
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          opacity: 0.85,
+        }}>
+          <StickerView sticker={drag.sticker} />
+        </div>
+      )}
 
       {gachaStickers && (
-        <GachaModal stickers={gachaStickers} onClose={handleGachaClose} />
+        <GachaModal stickers={gachaStickers} onClose={() => setGachaStickers(null)} />
       )}
-    </DndContext>
+    </div>
   );
 }

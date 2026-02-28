@@ -44,6 +44,16 @@
   font-family: serif;
 }
 
+.placedSticker {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+}
+
+.placedSticker:active {
+  cursor: grabbing;
+}
+
 .emptyHint {
   position: absolute;
   top: 50%;
