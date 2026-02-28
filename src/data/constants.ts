@@ -1,4 +1,4 @@
-import type { BaseShape, Pattern, Decoration, Expression } from '../types';
+import type { BaseShape, Pattern, Decoration, Expression, CoverDesign } from '../types';
 
 export const MAX_PLAY_TIME_MS = 30 * 60 * 1000; // 30分
 export const MIN_GACHA_COUNT = 5;
@@ -8,19 +8,24 @@ export const INITIAL_PAGES = 4;
 
 export const BASE_SHAPES: BaseShape[] = [
   'circle', 'star', 'heart', 'flower', 'animal_face',
-  'food', 'diamond', 'cloud', 'moon', 'ribbon'
+  'food', 'diamond', 'cloud', 'moon', 'ribbon',
+  'cat', 'bunny', 'bear', 'penguin', 'cherry',
+  'strawberry', 'ice_cream', 'rainbow', 'shooting_star', 'butterfly',
 ];
 
 export const PATTERNS: Pattern[] = [
-  'none', 'dots', 'stripes', 'stars', 'sparkle', 'gradient'
+  'none', 'dots', 'stripes', 'stars', 'sparkle', 'gradient',
+  'hearts', 'confetti', 'rainbow',
 ];
 
 export const DECORATIONS: Decoration[] = [
-  'none', 'bow', 'crown', 'wings', 'halo', 'frame'
+  'none', 'bow', 'crown', 'wings', 'halo', 'frame',
+  'tiara', 'flower_wreath', 'scarf',
 ];
 
 export const EXPRESSIONS: Expression[] = [
-  'none', 'smile', 'wink', 'heart_eyes', 'sleepy'
+  'none', 'smile', 'wink', 'heart_eyes', 'sleepy',
+  'surprised', 'happy_cry',
 ];
 
 export const PRIMARY_COLORS = [
@@ -45,7 +50,17 @@ export const SHAPE_NAMES: Record<BaseShape, string> = {
   diamond: 'ダイヤ',
   cloud: 'くも',
   moon: 'おつきさま',
-  ribbon: 'リボン'
+  ribbon: 'リボン',
+  cat: 'ねこ',
+  bunny: 'うさぎ',
+  bear: 'くま',
+  penguin: 'ペンギン',
+  cherry: 'さくらんぼ',
+  strawberry: 'いちご',
+  ice_cream: 'アイス',
+  rainbow: 'にじ',
+  shooting_star: 'ながれぼし',
+  butterfly: 'ちょうちょ',
 };
 
 export const RARITY_WEIGHTS = {
@@ -59,3 +74,10 @@ export const SIZE_MAP = {
   medium: 72,
   large: 88
 } as const;
+
+export const COVER_DESIGNS: { id: CoverDesign; label: string }[] = [
+  { id: 'pastel_flowers', label: 'パステルフラワー' },
+  { id: 'stars_ribbons', label: 'ほしとリボン' },
+  { id: 'animal_friends', label: 'どうぶつなかま' },
+  { id: 'rainbow_dream', label: 'にじのゆめ' },
+];

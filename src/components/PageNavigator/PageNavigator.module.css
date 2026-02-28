@@ -63,3 +63,48 @@
   opacity: 0.3;
   cursor: not-allowed;
 }
+
+.overviewButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.overviewButton:hover {
+  background: rgba(162, 155, 254, 0.1);
+  border-color: #A29BFE;
+}
+
+.overviewActive {
+  background: rgba(162, 155, 254, 0.15);
+  border-color: #A29BFE;
+}
+
+.gridIcon {
+  display: grid;
+  grid-template-columns: repeat(2, 6px);
+  grid-template-rows: repeat(2, 6px);
+  gap: 2px;
+}
+
+.gridIcon::before,
+.gridIcon::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #999;
+}
+
+.overviewActive .gridIcon::before,
+.overviewActive .gridIcon::after {
+  background: #A29BFE;
+}

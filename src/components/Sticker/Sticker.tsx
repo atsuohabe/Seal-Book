@@ -26,6 +26,16 @@ const shapeClassMap: Record<string, string> = {
   cloud: styles.shapeCloud,
   moon: styles.shapeMoon,
   ribbon: styles.shapeRibbon,
+  cat: styles.shapeCat,
+  bunny: styles.shapeBunny,
+  bear: styles.shapeBear,
+  penguin: styles.shapePenguin,
+  cherry: styles.shapeCherry,
+  strawberry: styles.shapeStrawberry,
+  ice_cream: styles.shapeIceCream,
+  rainbow: styles.shapeRainbow,
+  shooting_star: styles.shapeShootingStar,
+  butterfly: styles.shapeButterfly,
 };
 
 export function StickerView({ sticker, className = '', style, isNew, onDoubleClick }: StickerProps) {

@@ -1,0 +1,33 @@
+.cover {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    inset 0 0 60px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.coverSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.thumbnail {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tapHint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  white-space: nowrap;
+}

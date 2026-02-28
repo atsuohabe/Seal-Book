@@ -123,6 +123,16 @@
 .shapeCloud { border-radius: 40%; }
 .shapeMoon { border-radius: 50%; }
 .shapeRibbon { border-radius: 12px; }
+.shapeCat { border-radius: 42% 42% 50% 50%; }
+.shapeBunny { border-radius: 42% 42% 50% 50%; }
+.shapeBear { border-radius: 42% 42% 50% 50%; }
+.shapePenguin { border-radius: 40% 40% 50% 50%; }
+.shapeCherry { border-radius: 50%; }
+.shapeStrawberry { border-radius: 40% 40% 50% 50%; }
+.shapeIceCream { border-radius: 30% 30% 12px 12px; }
+.shapeRainbow { border-radius: 50% 50% 12px 12px; }
+.shapeShootingStar { border-radius: 12px; }
+.shapeButterfly { border-radius: 50%; }
 
 .stickerContent {
   position: relative;

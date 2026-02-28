@@ -5,7 +5,6 @@ import styles from './AlbumPage.module.css';
 
 interface AlbumPageProps {
   page: AlbumPageType;
-  onRemoveSticker: (instanceId: string) => void;
   onPointerDown: (
     e: React.PointerEvent,
     sticker: StickerDef,
@@ -16,7 +15,7 @@ interface AlbumPageProps {
 }
 
 export const AlbumPage = forwardRef<HTMLDivElement, AlbumPageProps>(
-  function AlbumPage({ page, onRemoveSticker, onPointerDown, isTimeUp }, ref) {
+  function AlbumPage({ page, onPointerDown, isTimeUp }, ref) {
     return (
       <div
         ref={ref}
@@ -47,9 +46,6 @@ export const AlbumPage = forwardRef<HTMLDivElement, AlbumPageProps>(
                   e.stopPropagation();
                   onPointerDown(e, placed.sticker, 'page', placed.instanceId);
                 }
-              }}
-              onDoubleClick={() => {
-                if (!isTimeUp) onRemoveSticker(placed.instanceId);
               }}
             >
               <StickerView sticker={placed.sticker} />

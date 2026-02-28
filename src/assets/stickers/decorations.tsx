@@ -21,6 +21,9 @@ export function DecorationOverlay({ decoration, color, size }: DecorationOverlay
       {decoration === 'wings' && <WingsDecoration color={color} />}
       {decoration === 'halo' && <HaloDecoration color={color} />}
       {decoration === 'frame' && <FrameDecoration color={color} />}
+      {decoration === 'tiara' && <TiaraDecoration color={color} />}
+      {decoration === 'flower_wreath' && <FlowerWreathDecoration color={color} />}
+      {decoration === 'scarf' && <ScarfDecoration color={color} />}
     </svg>
   );
 }
@@ -115,6 +118,73 @@ function FrameDecoration({ color }: { color: string }) {
       <circle cx="58" cy="6" r="2" fill={color} opacity="0.7" />
       <circle cx="6" cy="58" r="2" fill={color} opacity="0.7" />
       <circle cx="58" cy="58" r="2" fill={color} opacity="0.7" />
+    </g>
+  );
+}
+
+function TiaraDecoration({ color }: { color: string }) {
+  return (
+    <g>
+      {/* Tiara band */}
+      <path
+        d="M14,14 Q20,6 26,10 Q32,4 38,10 Q44,6 50,14"
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        opacity="0.8"
+      />
+      {/* Gemstones */}
+      <circle cx="26" cy="9" r="2" fill="#FFE66D" opacity="0.8" />
+      <circle cx="32" cy="5" r="2.5" fill="#FF9FF3" opacity="0.8" />
+      <circle cx="38" cy="9" r="2" fill="#74B9FF" opacity="0.8" />
+    </g>
+  );
+}
+
+function FlowerWreathDecoration({ color }: { color: string }) {
+  const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+  const cx = 32, cy = 32, r = 28;
+  return (
+    <g opacity="0.7">
+      {angles.map((angle) => {
+        const rad = (angle * Math.PI) / 180;
+        const fx = cx + r * Math.cos(rad);
+        const fy = cy + r * Math.sin(rad);
+        return (
+          <g key={angle} transform={`translate(${fx},${fy})`}>
+            {[0, 72, 144, 216, 288].map((pa) => (
+              <ellipse
+                key={pa}
+                cx={3 * Math.cos((pa * Math.PI) / 180)}
+                cy={3 * Math.sin((pa * Math.PI) / 180)}
+                rx="2.5"
+                ry="1.5"
+                fill={color}
+                transform={`rotate(${pa})`}
+              />
+            ))}
+            <circle cx="0" cy="0" r="1.5" fill="#FFE66D" />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function ScarfDecoration({ color }: { color: string }) {
+  return (
+    <g opacity="0.75">
+      {/* Scarf band */}
+      <path
+        d="M8,46 Q16,42 24,46 Q32,50 40,46 Q48,42 56,46 L56,52 Q48,48 40,52 Q32,56 24,52 Q16,48 8,52 Z"
+        fill={color}
+      />
+      {/* Fringe left */}
+      <line x1="10" y1="52" x2="8" y2="58" stroke={color} strokeWidth="1.5" />
+      <line x1="14" y1="52" x2="12" y2="58" stroke={color} strokeWidth="1.5" />
+      {/* Fringe right */}
+      <line x1="50" y1="52" x2="52" y2="58" stroke={color} strokeWidth="1.5" />
+      <line x1="54" y1="52" x2="56" y2="58" stroke={color} strokeWidth="1.5" />
     </g>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { GameState, AlbumPage, PlacedSticker, StickerDef } from '../types';
+import type { GameState, AlbumPage, PlacedSticker, StickerDef, CoverDesign } from '../types';
 import { loadGameState, saveGameState } from '../utils/storage';
 import { getTodayDateString, isSameDay } from '../utils/dateUtils';
 import { INITIAL_PAGES, MAX_PAGES } from '../data/constants';
@@ -19,6 +19,7 @@ function createInitialState(): GameState {
     todayPlayTimeMs: 0,
     lastPlayDate: today,
     gachaCount: 0,
+    coverDesign: 'pastel_flowers' as CoverDesign,
   };
 }
 
@@ -26,6 +27,8 @@ export function useGameState() {
   const [state, setState] = useState<GameState>(() => {
     const saved = loadGameState();
     if (saved) {
+      // Migration: add coverDesign if missing
+      if (!saved.coverDesign) saved.coverDesign = 'pastel_flowers';
       const today = getTodayDateString();
       if (!isSameDay(saved.lastPlayDate)) {
         return { ...saved, todayPlayTimeMs: 0, lastPlayDate: today };
@@ -155,6 +158,10 @@ export function useGameState() {
     setState(prev => ({ ...prev, todayPlayTimeMs: ms }));
   }, []);
 
+  const setCoverDesign = useCallback((design: CoverDesign) => {
+    setState(prev => ({ ...prev, coverDesign: design }));
+  }, []);
+
   const canGacha = !isSameDay(state.lastGachaDate);
   const currentPage = state.pages[state.currentPageIndex];
 
@@ -172,5 +179,6 @@ export function useGameState() {
     addToInventory,
     setLastGachaDate,
     updatePlayTime,
+    setCoverDesign,
   };
 }

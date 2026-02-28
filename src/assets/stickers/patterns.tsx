@@ -21,6 +21,9 @@ export function PatternOverlay({ pattern, color, size }: PatternOverlayProps) {
       {pattern === 'stars' && <StarsPattern color={color} />}
       {pattern === 'sparkle' && <SparklePattern color={color} />}
       {pattern === 'gradient' && <GradientPattern color={color} />}
+      {pattern === 'hearts' && <HeartsPattern color={color} />}
+      {pattern === 'confetti' && <ConfettiPattern color={color} />}
+      {pattern === 'rainbow' && <RainbowPattern />}
     </svg>
   );
 }
@@ -102,6 +105,68 @@ function GradientPattern({ color }: { color: string }) {
         </linearGradient>
       </defs>
       <rect x="0" y="0" width="64" height="64" fill="url(#pat-grad)" />
+    </>
+  );
+}
+
+function HeartsPattern({ color }: { color: string }) {
+  const positions = [[16, 16], [40, 12], [28, 32], [48, 40], [12, 46]];
+  return (
+    <>
+      {positions.map(([cx, cy], i) => (
+        <path
+          key={i}
+          d={`M${cx} ${cy + 1} C${cx} ${cy - 1} ${cx - 3} ${cy - 3} ${cx - 3} ${cy - 1} C${cx - 3} ${cy + 1} ${cx} ${cy + 4} ${cx} ${cy + 4} C${cx} ${cy + 4} ${cx + 3} ${cy + 1} ${cx + 3} ${cy - 1} C${cx + 3} ${cy - 3} ${cx} ${cy - 1} ${cx} ${cy + 1}Z`}
+          fill={color}
+          opacity="0.35"
+        />
+      ))}
+    </>
+  );
+}
+
+function ConfettiPattern({ color }: { color: string }) {
+  const pieces = [
+    { x: 14, y: 14, r: 30 },
+    { x: 38, y: 10, r: -20 },
+    { x: 50, y: 28, r: 45 },
+    { x: 22, y: 40, r: -35 },
+    { x: 44, y: 48, r: 15 },
+    { x: 10, y: 30, r: 60 },
+    { x: 52, y: 50, r: -10 },
+  ];
+  return (
+    <>
+      {pieces.map(({ x, y, r }, i) => (
+        <rect
+          key={i}
+          x={x - 2}
+          y={y - 1}
+          width="4"
+          height="2"
+          rx="0.5"
+          fill={color}
+          opacity={0.25 + (i % 3) * 0.1}
+          transform={`rotate(${r} ${x} ${y})`}
+        />
+      ))}
+    </>
+  );
+}
+
+function RainbowPattern() {
+  return (
+    <>
+      <defs>
+        <linearGradient id="pat-rainbow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#FF6B6B" stopOpacity="0.25" />
+          <stop offset="25%" stopColor="#FFE66D" stopOpacity="0.25" />
+          <stop offset="50%" stopColor="#95E86B" stopOpacity="0.25" />
+          <stop offset="75%" stopColor="#74B9FF" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#A29BFE" stopOpacity="0.25" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="64" height="64" fill="url(#pat-rainbow)" />
     </>
   );
 }

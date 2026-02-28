@@ -65,7 +65,7 @@ export function generateSticker(seed: number): StickerDef {
   }
 
   // Expression for face-like shapes
-  const faceShapes: BaseShape[] = ['circle', 'animal_face', 'cloud', 'star'];
+  const faceShapes: BaseShape[] = ['circle', 'animal_face', 'cloud', 'star', 'cat', 'bunny', 'bear', 'penguin'];
   if (faceShapes.includes(baseShape)) {
     expression = rng() < 0.7 ? pick(EXPRESSIONS.filter(e => e !== 'none'), rng) : 'none';
   }
@@ -102,6 +102,9 @@ function decorationName(d: Decoration): string {
     wings: '羽つき',
     halo: '天使の輪',
     frame: 'フレーム付き',
+    tiara: 'ティアラ付き',
+    flower_wreath: '花冠付き',
+    scarf: 'マフラー付き',
   };
   return names[d];
 }

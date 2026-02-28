@@ -19,6 +19,8 @@ export function ExpressionOverlay({ expression, size }: ExpressionOverlayProps) 
       {expression === 'wink' && <WinkExpression />}
       {expression === 'heart_eyes' && <HeartEyesExpression />}
       {expression === 'sleepy' && <SleepyExpression />}
+      {expression === 'surprised' && <SurprisedExpression />}
+      {expression === 'happy_cry' && <HappyCryExpression />}
     </svg>
   );
 }
@@ -94,6 +96,46 @@ function SleepyExpression() {
       {/* Zzz */}
       <text x="48" y="18" fontSize="8" fill="#A29BFE" fontWeight="bold" opacity="0.6">z</text>
       <text x="52" y="12" fontSize="6" fill="#A29BFE" fontWeight="bold" opacity="0.4">z</text>
+    </g>
+  );
+}
+
+function SurprisedExpression() {
+  return (
+    <g>
+      {/* Eyebrows */}
+      <line x1="20" y1="22" x2="28" y2="21" stroke="#333" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="36" y1="21" x2="44" y2="22" stroke="#333" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Wide eyes */}
+      <circle cx="24" cy="28" r="4.5" fill="#FFF" />
+      <circle cx="40" cy="28" r="4.5" fill="#FFF" />
+      <circle cx="24" cy="28" r="3" fill="#333" />
+      <circle cx="40" cy="28" r="3" fill="#333" />
+      <circle cx="25" cy="27" r="1.2" fill="#FFF" />
+      <circle cx="41" cy="27" r="1.2" fill="#FFF" />
+      {/* Cheeks */}
+      <ellipse cx="16" cy="36" rx="4" ry="2.5" fill="#FF9999" opacity="0.4" />
+      <ellipse cx="48" cy="36" rx="4" ry="2.5" fill="#FF9999" opacity="0.4" />
+      {/* Mouth (small circle) */}
+      <circle cx="32" cy="40" r="3.5" fill="#333" opacity="0.6" />
+    </g>
+  );
+}
+
+function HappyCryExpression() {
+  return (
+    <g>
+      {/* Closed happy eyes */}
+      <path d="M20 28 Q24 25 28 28" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" />
+      <path d="M36 28 Q40 25 44 28" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" />
+      {/* Tears */}
+      <ellipse cx="22" cy="33" rx="2" ry="3" fill="#74B9FF" opacity="0.5" />
+      <ellipse cx="42" cy="33" rx="2" ry="3" fill="#74B9FF" opacity="0.5" />
+      {/* Cheeks */}
+      <ellipse cx="16" cy="36" rx="4" ry="2.5" fill="#FF9999" opacity="0.45" />
+      <ellipse cx="48" cy="36" rx="4" ry="2.5" fill="#FF9999" opacity="0.45" />
+      {/* Wide smile */}
+      <path d="M24 38 Q32 46 40 38" fill="none" stroke="#333" strokeWidth="1.5" strokeLinecap="round" />
     </g>
   );
 }
