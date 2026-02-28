@@ -1,0 +1,81 @@
+.tray {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(to top, #f0ebe3, #f7f4ef);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 100px;
+  scrollbar-width: thin;
+}
+
+.tray::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tray::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+}
+
+.emptyTray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+}
+
+.gachaButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px dashed rgba(78, 205, 196, 0.5);
+  background: rgba(78, 205, 196, 0.08);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  color: #4ECDC4;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.gachaButton:hover {
+  border-color: #4ECDC4;
+  background: rgba(78, 205, 196, 0.15);
+  transform: scale(1.05);
+}
+
+.gachaButton:active {
+  transform: scale(0.95);
+}
+
+.gachaButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.gachaButton:disabled:hover {
+  transform: none;
+}
+
+.draggableSticker {
+  flex-shrink: 0;
+  cursor: grab;
+  transition: opacity 0.15s;
+}
+
+.draggableSticker:active {
+  cursor: grabbing;
+}

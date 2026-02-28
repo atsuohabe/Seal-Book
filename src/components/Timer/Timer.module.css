@@ -1,0 +1,63 @@
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #888;
+}
+
+.timerIcon {
+  font-size: 14px;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  min-width: 50px;
+}
+
+.warning {
+  color: #e77;
+}
+
+.critical {
+  color: #d44;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.timeUpOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.timeUpCard {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+}
+
+.timeUpTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.timeUpMessage {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+}
