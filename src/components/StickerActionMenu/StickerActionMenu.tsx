@@ -4,13 +4,17 @@ import styles from './StickerActionMenu.module.css';
 interface StickerActionMenuProps {
   x: number;
   y: number;
+  currentName?: string;
   onRemove: () => void;
+  onName: (name: string) => void;
   onClose: () => void;
 }
 
-export function StickerActionMenu({ x, y, onRemove, onClose }: StickerActionMenuProps) {
+export function StickerActionMenu({ x, y, currentName, onRemove, onName, onClose }: StickerActionMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ x, y: y - 60 });
+  const [isNaming, setIsNaming] = useState(false);
+  const [nameInput, setNameInput] = useState(currentName || '');
 
   useEffect(() => {
     if (menuRef.current) {
@@ -21,7 +25,13 @@ export function StickerActionMenu({ x, y, onRemove, onClose }: StickerActionMenu
       adjY = Math.max(8, adjY);
       setPos({ x: adjX, y: adjY });
     }
-  }, [x, y]);
+  }, [x, y, isNaming]);
+
+  function handleConfirmName() {
+    if (nameInput.trim()) {
+      onName(nameInput.trim());
+    }
+  }
 
   return (
     <>
@@ -31,9 +41,37 @@ export function StickerActionMenu({ x, y, onRemove, onClose }: StickerActionMenu
         className={styles.menu}
         style={{ left: pos.x, top: pos.y }}
       >
-        <button className={styles.removeButton} onClick={onRemove}>
-          はがす
-        </button>
+        {isNaming ? (
+          <div className={styles.nameInputWrapper}>
+            <input
+              className={styles.nameInput}
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleConfirmName();
+                if (e.key === 'Escape') setIsNaming(false);
+              }}
+              autoFocus
+              maxLength={10}
+              placeholder="なまえ"
+            />
+            <button className={styles.confirmButton} onClick={handleConfirmName}>
+              けってい
+            </button>
+          </div>
+        ) : (
+          <>
+            <button className={styles.nameButton} onClick={() => {
+              setNameInput(currentName || '');
+              setIsNaming(true);
+            }}>
+              {currentName ? 'なまえをかえる' : 'なまえをつける'}
+            </button>
+            <button className={styles.removeButton} onClick={onRemove}>
+              はがす
+            </button>
+          </>
+        )}
       </div>
     </>
   );

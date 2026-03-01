@@ -50,6 +50,8 @@ export default function App() {
     setLastGachaDate,
     updatePlayTime,
     setCoverDesign,
+    setCoverTitle,
+    nameSticker,
   } = useGameState();
 
   const { remainingMinutes, remainingSeconds, isTimeUp, start, isRunning } = useTimer(
@@ -139,11 +141,11 @@ export default function App() {
   const handleGacha = useCallback(() => {
     ensureTimerStarted();
     const today = getTodayDateString();
-    const stickers = rollGacha(today, state.gachaCount);
+    const stickers = rollGacha(today, state.gachaCount, state.namedCharacters);
     setGachaStickers(stickers);
     addToInventory(stickers);
     setLastGachaDate(today);
-  }, [ensureTimerStarted, state.gachaCount, addToInventory, setLastGachaDate]);
+  }, [ensureTimerStarted, state.gachaCount, state.namedCharacters, addToInventory, setLastGachaDate]);
 
   const handlePrev = useCallback(() => {
     setStickerMenu(null);
@@ -211,6 +213,7 @@ export default function App() {
             currentPageIndex={state.currentPageIndex}
             showingCover={showingCover}
             coverDesign={state.coverDesign}
+            coverTitle={state.coverTitle}
             onSelectPage={handleSelectPage}
             onPointerDown={handlePointerDown}
             isTimeUp={isTimeUp}
@@ -218,7 +221,9 @@ export default function App() {
         ) : showingCover ? (
           <AlbumCover
             design={state.coverDesign}
+            title={state.coverTitle}
             onChangeDesign={() => setShowCoverPicker(true)}
+            onChangeTitle={setCoverTitle}
           />
         ) : (
           <AlbumPage
@@ -271,8 +276,13 @@ export default function App() {
         <StickerActionMenu
           x={stickerMenu.x}
           y={stickerMenu.y}
+          currentName={currentPage.stickers.find(s => s.instanceId === stickerMenu.instanceId)?.sticker.customName}
           onRemove={() => {
             removeSticker(stickerMenu.instanceId);
+            setStickerMenu(null);
+          }}
+          onName={(name) => {
+            nameSticker(stickerMenu.instanceId, name);
             setStickerMenu(null);
           }}
           onClose={() => setStickerMenu(null)}

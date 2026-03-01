@@ -49,6 +49,9 @@ export const AlbumPage = forwardRef<HTMLDivElement, AlbumPageProps>(
               }}
             >
               <StickerView sticker={placed.sticker} />
+              {placed.sticker.customName && (
+                <div className={styles.stickerLabel}>{placed.sticker.customName}</div>
+              )}
             </div>
           ))}
 

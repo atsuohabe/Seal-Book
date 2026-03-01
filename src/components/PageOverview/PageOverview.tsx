@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import type { AlbumPage as AlbumPageType, StickerDef, CoverDesign } from '../../types';
 import { AlbumPage } from '../AlbumPage/AlbumPage';
 import { AlbumCover } from '../AlbumCover/AlbumCover';
@@ -9,6 +9,7 @@ interface PageOverviewProps {
   currentPageIndex: number;
   showingCover: boolean;
   coverDesign: CoverDesign;
+  coverTitle: string;
   onSelectPage: (index: number) => void;
   onPointerDown: (
     e: React.PointerEvent,
@@ -17,6 +18,36 @@ interface PageOverviewProps {
     instanceId?: string,
   ) => void;
   isTimeUp: boolean;
+}
+
+function ScaledThumbnail({ children }: { children: React.ReactNode }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.5);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setScale(entry.contentRect.width / 540);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className={styles.thumbnailContent}>
+      <div style={{
+        width: 540,
+        height: 720,
+        transformOrigin: 'top left',
+        transform: `scale(${scale})`,
+      }}>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 const PageThumbnail = React.memo(function PageThumbnail({
@@ -33,20 +64,20 @@ const PageThumbnail = React.memo(function PageThumbnail({
       className={`${styles.thumbnail} ${isActive ? styles.thumbnailActive : ''}`}
       onClick={onClick}
     >
-      <div className={styles.thumbnailContent}>
+      <ScaledThumbnail>
         <AlbumPage
           page={page}
           onPointerDown={onPointerDown}
           isTimeUp={isTimeUp}
         />
-      </div>
+      </ScaledThumbnail>
       <div className={styles.pageNumber}>{page.id + 1}</div>
     </div>
   );
 });
 
 export function PageOverview({
-  pages, currentPageIndex, showingCover, coverDesign, onSelectPage, onPointerDown, isTimeUp,
+  pages, currentPageIndex, showingCover, coverDesign, coverTitle, onSelectPage, onPointerDown, isTimeUp,
 }: PageOverviewProps) {
   return (
     <div className={styles.overviewGrid}>
@@ -55,9 +86,9 @@ export function PageOverview({
         className={`${styles.thumbnail} ${showingCover ? styles.thumbnailActive : ''}`}
         onClick={() => onSelectPage(-1)}
       >
-        <div className={styles.thumbnailContent}>
-          <AlbumCover design={coverDesign} isThumbnail />
-        </div>
+        <ScaledThumbnail>
+          <AlbumCover design={coverDesign} title={coverTitle} isThumbnail />
+        </ScaledThumbnail>
         <div className={styles.pageNumber}>表紙</div>
       </div>
 

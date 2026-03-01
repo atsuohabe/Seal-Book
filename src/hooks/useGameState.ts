@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { GameState, AlbumPage, PlacedSticker, StickerDef, CoverDesign } from '../types';
+import type { GameState, AlbumPage, PlacedSticker, StickerDef, CoverDesign, NamedCharacter } from '../types';
 import { loadGameState, saveGameState } from '../utils/storage';
 import { getTodayDateString, isSameDay } from '../utils/dateUtils';
 import { INITIAL_PAGES, MAX_PAGES } from '../data/constants';
@@ -20,6 +20,15 @@ function createInitialState(): GameState {
     lastPlayDate: today,
     gachaCount: 0,
     coverDesign: 'pastel_flowers' as CoverDesign,
+    coverTitle: 'わたしの\nシールちょう',
+    namedCharacters: [],
+  };
+}
+
+function migrateStickerDef(s: StickerDef): StickerDef {
+  return {
+    ...s,
+    characterType: s.characterType ?? 'face',
   };
 }
 
@@ -27,8 +36,17 @@ export function useGameState() {
   const [state, setState] = useState<GameState>(() => {
     const saved = loadGameState();
     if (saved) {
-      // Migration: add coverDesign if missing
+      // Migrations
       if (!saved.coverDesign) saved.coverDesign = 'pastel_flowers';
+      if (!saved.coverTitle) saved.coverTitle = 'わたしの\nシールちょう';
+      if (!saved.namedCharacters) saved.namedCharacters = [];
+      // Migrate stickers
+      saved.inventory = (saved.inventory ?? []).map(migrateStickerDef);
+      saved.collectedStickers = (saved.collectedStickers ?? []).map(migrateStickerDef);
+      saved.pages = (saved.pages ?? []).map(p => ({
+        ...p,
+        stickers: p.stickers.map(ps => ({ ...ps, sticker: migrateStickerDef(ps.sticker) })),
+      }));
       const today = getTodayDateString();
       if (!isSameDay(saved.lastPlayDate)) {
         return { ...saved, todayPlayTimeMs: 0, lastPlayDate: today };
@@ -162,6 +180,49 @@ export function useGameState() {
     setState(prev => ({ ...prev, coverDesign: design }));
   }, []);
 
+  const setCoverTitle = useCallback((title: string) => {
+    setState(prev => ({ ...prev, coverTitle: title }));
+  }, []);
+
+  const nameSticker = useCallback((instanceId: string, customName: string) => {
+    setState(prev => {
+      const page = prev.pages[prev.currentPageIndex];
+      const placed = page.stickers.find(s => s.instanceId === instanceId);
+      if (!placed) return prev;
+
+      const pages = prev.pages.map((p, i) =>
+        i === prev.currentPageIndex
+          ? {
+              ...p,
+              stickers: p.stickers.map(s =>
+                s.instanceId === instanceId
+                  ? { ...s, sticker: { ...s.sticker, customName } }
+                  : s
+              ),
+            }
+          : p
+      );
+
+      const alreadyNamed = prev.namedCharacters.some(
+        nc => nc.originalStickerId === placed.sticker.id
+      );
+      const newCharacter: NamedCharacter = {
+        name: customName,
+        baseShape: placed.sticker.baseShape,
+        primaryColor: placed.sticker.primaryColor,
+        secondaryColor: placed.sticker.secondaryColor,
+        originalStickerId: placed.sticker.id,
+      };
+      const namedCharacters = alreadyNamed
+        ? prev.namedCharacters.map(nc =>
+            nc.originalStickerId === placed.sticker.id ? { ...nc, name: customName } : nc
+          )
+        : [...prev.namedCharacters, newCharacter];
+
+      return { ...prev, pages, namedCharacters };
+    });
+  }, []);
+
   const canGacha = !isSameDay(state.lastGachaDate);
   const currentPage = state.pages[state.currentPageIndex];
 
@@ -180,5 +241,7 @@ export function useGameState() {
     setLastGachaDate,
     updatePlayTime,
     setCoverDesign,
+    setCoverTitle,
+    nameSticker,
   };
 }

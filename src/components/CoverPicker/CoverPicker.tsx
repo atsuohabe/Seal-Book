@@ -22,7 +22,7 @@ export function CoverPicker({ currentDesign, onSelect, onClose }: CoverPickerPro
               onClick={() => onSelect(d.id)}
             >
               <div className={styles.preview}>
-                <AlbumCover design={d.id} isThumbnail />
+                <AlbumCover design={d.id} title={'わたしの\nシールちょう'} isThumbnail />
               </div>
               <span className={styles.label}>{d.label}</span>
             </button>

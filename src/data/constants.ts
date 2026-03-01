@@ -1,4 +1,4 @@
-import type { BaseShape, Pattern, Decoration, Expression, CoverDesign } from '../types';
+import type { BaseShape, Pattern, Decoration, Expression, CoverDesign, Pose, CharacterType } from '../types';
 
 export const MAX_PLAY_TIME_MS = 30 * 60 * 1000; // 30分
 export const MIN_GACHA_COUNT = 5;
@@ -11,6 +11,24 @@ export const BASE_SHAPES: BaseShape[] = [
   'food', 'diamond', 'cloud', 'moon', 'ribbon',
   'cat', 'bunny', 'bear', 'penguin', 'cherry',
   'strawberry', 'ice_cream', 'rainbow', 'shooting_star', 'butterfly',
+  'cat_sitting', 'cat_jumping', 'bunny_sitting', 'bunny_jumping',
+  'bear_waving', 'bear_sleeping', 'penguin_sliding', 'penguin_dancing',
+];
+
+export const FACE_SHAPES: BaseShape[] = [
+  'circle', 'star', 'heart', 'flower', 'animal_face',
+  'food', 'diamond', 'cloud', 'moon', 'ribbon',
+  'cat', 'bunny', 'bear', 'penguin', 'cherry',
+  'strawberry', 'ice_cream', 'rainbow', 'shooting_star', 'butterfly',
+];
+
+export const FULL_BODY_SHAPES: BaseShape[] = [
+  'cat_sitting', 'cat_jumping', 'bunny_sitting', 'bunny_jumping',
+  'bear_waving', 'bear_sleeping', 'penguin_sliding', 'penguin_dancing',
+];
+
+export const ANIMAL_BASE_SHAPES: BaseShape[] = [
+  'cat', 'bunny', 'bear', 'penguin', 'animal_face',
 ];
 
 export const PATTERNS: Pattern[] = [
@@ -61,6 +79,49 @@ export const SHAPE_NAMES: Record<BaseShape, string> = {
   rainbow: 'にじ',
   shooting_star: 'ながれぼし',
   butterfly: 'ちょうちょ',
+  cat_sitting: 'おすわりねこ',
+  cat_jumping: 'ジャンプねこ',
+  bunny_sitting: 'おすわりうさぎ',
+  bunny_jumping: 'ジャンプうさぎ',
+  bear_waving: 'バイバイくま',
+  bear_sleeping: 'おねむくま',
+  penguin_sliding: 'すべるペンギン',
+  penguin_dancing: 'ダンスペンギン',
+};
+
+export const POSES: Pose[] = [
+  'sitting', 'jumping', 'waving', 'sleeping', 'sliding', 'dancing',
+];
+
+export const SHAPE_CHARACTER_TYPE: Record<BaseShape, CharacterType> = {
+  circle: 'face',
+  star: 'face',
+  heart: 'face',
+  flower: 'face',
+  animal_face: 'face',
+  food: 'face',
+  diamond: 'face',
+  cloud: 'face',
+  moon: 'face',
+  ribbon: 'face',
+  cat: 'face',
+  bunny: 'face',
+  bear: 'face',
+  penguin: 'face',
+  cherry: 'face',
+  strawberry: 'face',
+  ice_cream: 'face',
+  rainbow: 'face',
+  shooting_star: 'face',
+  butterfly: 'face',
+  cat_sitting: 'full_body',
+  cat_jumping: 'full_body',
+  bunny_sitting: 'full_body',
+  bunny_jumping: 'full_body',
+  bear_waving: 'full_body',
+  bear_sleeping: 'full_body',
+  penguin_sliding: 'full_body',
+  penguin_dancing: 'full_body',
 };
 
 export const RARITY_WEIGHTS = {

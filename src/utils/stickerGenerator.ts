@@ -1,5 +1,5 @@
-import type { StickerDef, BaseShape, Pattern, Decoration, Expression, Rarity, StickerSize } from '../types';
-import { BASE_SHAPES, PATTERNS, DECORATIONS, EXPRESSIONS, PRIMARY_COLORS, SECONDARY_COLORS, SHAPE_NAMES } from '../data/constants';
+import type { StickerDef, BaseShape, Pattern, Decoration, Expression, Rarity, StickerSize, NamedCharacter, CharacterType, Pose } from '../types';
+import { BASE_SHAPES, PATTERNS, DECORATIONS, EXPRESSIONS, PRIMARY_COLORS, SECONDARY_COLORS, SHAPE_NAMES, ANIMAL_BASE_SHAPES, SHAPE_CHARACTER_TYPE } from '../data/constants';
 
 // Mulberry32 seeded PRNG
 function seededRandom(seed: number): () => number {
@@ -38,16 +38,47 @@ function determineSize(rng: () => number): StickerSize {
   return 'large';
 }
 
+// Full-body variant map: face shape -> list of full-body variants
+const FULL_BODY_VARIANTS: Partial<Record<BaseShape, BaseShape[]>> = {
+  cat: ['cat_sitting', 'cat_jumping'],
+  bunny: ['bunny_sitting', 'bunny_jumping'],
+  bear: ['bear_waving', 'bear_sleeping'],
+  penguin: ['penguin_sliding', 'penguin_dancing'],
+};
+
+// Shape -> pose mapping
+const SHAPE_POSE: Partial<Record<BaseShape, Pose>> = {
+  cat_sitting: 'sitting',
+  cat_jumping: 'jumping',
+  bunny_sitting: 'sitting',
+  bunny_jumping: 'jumping',
+  bear_waving: 'waving',
+  bear_sleeping: 'sleeping',
+  penguin_sliding: 'sliding',
+  penguin_dancing: 'dancing',
+};
+
 export function generateSticker(seed: number): StickerDef {
   const rng = seededRandom(seed);
 
   const rarity = determineRarity(rng);
-  const baseShape = pick(BASE_SHAPES, rng);
+
+  // Full-body probability by rarity
+  const fullBodyChance = rarity === 'super_rare' ? 0.7 : rarity === 'rare' ? 0.5 : 0.3;
+  let baseShape = pick(BASE_SHAPES, rng);
+
+  // If picked an animal face shape, maybe upgrade to full-body variant
+  if (ANIMAL_BASE_SHAPES.includes(baseShape) && FULL_BODY_VARIANTS[baseShape]) {
+    if (rng() < fullBodyChance) {
+      const variants = FULL_BODY_VARIANTS[baseShape]!;
+      baseShape = pick(variants, rng);
+    }
+  }
+
   const primaryColor = pick(PRIMARY_COLORS, rng);
   const secondaryColor = pick(SECONDARY_COLORS, rng);
   const size = determineSize(rng);
 
-  // Common stickers have simpler combinations
   let pattern: Pattern = 'none';
   let decoration: Decoration = 'none';
   let expression: Expression = 'none';
@@ -59,17 +90,18 @@ export function generateSticker(seed: number): StickerDef {
     pattern = rng() < 0.6 ? pick(PATTERNS.filter(p => p !== 'none'), rng) : 'none';
     decoration = pick(DECORATIONS.filter(d => d !== 'none'), rng);
   } else {
-    // super_rare: always has pattern + decoration
     pattern = pick(PATTERNS.filter(p => p !== 'none'), rng);
     decoration = pick(DECORATIONS.filter(d => d !== 'none'), rng);
   }
 
-  // Expression for face-like shapes
+  // Expression for face-like shapes only
   const faceShapes: BaseShape[] = ['circle', 'animal_face', 'cloud', 'star', 'cat', 'bunny', 'bear', 'penguin'];
   if (faceShapes.includes(baseShape)) {
     expression = rng() < 0.7 ? pick(EXPRESSIONS.filter(e => e !== 'none'), rng) : 'none';
   }
 
+  const characterType: CharacterType = SHAPE_CHARACTER_TYPE[baseShape] ?? 'face';
+  const pose: Pose | undefined = SHAPE_POSE[baseShape];
   const name = generateName(baseShape, rarity, decoration);
 
   return {
@@ -84,6 +116,54 @@ export function generateSticker(seed: number): StickerDef {
     expression,
     rarity,
     size,
+    characterType,
+    ...(pose ? { pose } : {}),
+  };
+}
+
+function generateVariation(character: NamedCharacter, seed: number): StickerDef {
+  const rng = seededRandom(seed);
+
+  // Same base shape family but potentially different variant
+  let baseShape = character.baseShape;
+  const variants = FULL_BODY_VARIANTS[baseShape];
+  if (variants && rng() < 0.5) {
+    baseShape = pick(variants, rng);
+  }
+
+  // Different colors but keep the character's identity
+  const primaryColor = rng() < 0.4 ? character.primaryColor : pick(PRIMARY_COLORS, rng);
+  const secondaryColor = rng() < 0.4 ? character.secondaryColor : pick(SECONDARY_COLORS, rng);
+
+  const rarity: Rarity = rng() < 0.3 ? 'rare' : 'common';
+  const size = determineSize(rng);
+  const pattern: Pattern = rng() < 0.5 ? pick(PATTERNS.filter(p => p !== 'none'), rng) : 'none';
+  const decoration: Decoration = rng() < 0.3 ? pick(DECORATIONS.filter(d => d !== 'none'), rng) : 'none';
+
+  const faceShapes: BaseShape[] = ['circle', 'animal_face', 'cloud', 'star', 'cat', 'bunny', 'bear', 'penguin'];
+  const expression: Expression = faceShapes.includes(baseShape)
+    ? pick(EXPRESSIONS.filter(e => e !== 'none'), rng)
+    : 'none';
+
+  const characterType: CharacterType = SHAPE_CHARACTER_TYPE[baseShape] ?? 'face';
+  const pose: Pose | undefined = SHAPE_POSE[baseShape];
+
+  return {
+    id: `var-${character.name}-${seed}`,
+    name: `${character.name}のなかま`,
+    seed,
+    baseShape,
+    primaryColor,
+    secondaryColor,
+    pattern,
+    decoration,
+    expression,
+    rarity,
+    size,
+    characterType,
+    ...(pose ? { pose } : {}),
+    isVariation: true,
+    variationOfName: character.name,
   };
 }
 
@@ -109,13 +189,20 @@ function decorationName(d: Decoration): string {
   return names[d];
 }
 
-export function generateDailyStickers(dateStr: string, gachaIndex: number, count: number): StickerDef[] {
+export function generateDailyStickers(dateStr: string, gachaIndex: number, count: number, namedCharacters: NamedCharacter[] = []): StickerDef[] {
   const baseSeed = hashString(`${dateStr}-gacha-${gachaIndex}`);
   const stickers: StickerDef[] = [];
 
   for (let i = 0; i < count; i++) {
-    const seed = baseSeed + i * 7919; // Use prime offset for variety
-    stickers.push(generateSticker(seed));
+    const seed = baseSeed + i * 7919;
+
+    // 30% chance of generating a variation if there are named characters
+    if (namedCharacters.length > 0 && Math.random() < 0.3) {
+      const character = namedCharacters[Math.floor(Math.random() * namedCharacters.length)];
+      stickers.push(generateVariation(character, seed + 1234));
+    } else {
+      stickers.push(generateSticker(seed));
+    }
   }
 
   return stickers;

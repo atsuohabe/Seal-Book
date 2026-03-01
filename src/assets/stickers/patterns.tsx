@@ -3,28 +3,22 @@ import type { Pattern } from '../../types';
 interface PatternOverlayProps {
   pattern: Pattern;
   color: string;
-  size: number;
+  stickerId: string;
 }
 
-export function PatternOverlay({ pattern, color, size }: PatternOverlayProps) {
+export function PatternOverlay({ pattern, color, stickerId }: PatternOverlayProps) {
   if (pattern === 'none') return null;
-
   return (
-    <svg
-      viewBox="0 0 64 64"
-      width={size}
-      height={size}
-      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
-    >
+    <>
       {pattern === 'dots' && <DotsPattern color={color} />}
       {pattern === 'stripes' && <StripesPattern color={color} />}
       {pattern === 'stars' && <StarsPattern color={color} />}
       {pattern === 'sparkle' && <SparklePattern color={color} />}
-      {pattern === 'gradient' && <GradientPattern color={color} />}
+      {pattern === 'gradient' && <GradientPattern color={color} stickerId={stickerId} />}
       {pattern === 'hearts' && <HeartsPattern color={color} />}
       {pattern === 'confetti' && <ConfettiPattern color={color} />}
-      {pattern === 'rainbow' && <RainbowPattern />}
-    </svg>
+      {pattern === 'rainbow' && <RainbowPattern stickerId={stickerId} />}
+    </>
   );
 }
 
@@ -94,17 +88,18 @@ function SparklePattern({ color }: { color: string }) {
   );
 }
 
-function GradientPattern({ color }: { color: string }) {
+function GradientPattern({ color, stickerId }: { color: string; stickerId: string }) {
+  const id = `pat-grad-${stickerId}`;
   return (
     <>
       <defs>
-        <linearGradient id="pat-grad" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0" />
           <stop offset="50%" stopColor={color} stopOpacity="0.3" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect x="0" y="0" width="64" height="64" fill="url(#pat-grad)" />
+      <rect x="0" y="0" width="64" height="64" fill={`url(#${id})`} />
     </>
   );
 }
@@ -154,11 +149,12 @@ function ConfettiPattern({ color }: { color: string }) {
   );
 }
 
-function RainbowPattern() {
+function RainbowPattern({ stickerId }: { stickerId: string }) {
+  const id = `pat-rainbow-${stickerId}`;
   return (
     <>
       <defs>
-        <linearGradient id="pat-rainbow" x1="0" y1="0" x2="1" y2="0">
+        <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#FF6B6B" stopOpacity="0.25" />
           <stop offset="25%" stopColor="#FFE66D" stopOpacity="0.25" />
           <stop offset="50%" stopColor="#95E86B" stopOpacity="0.25" />
@@ -166,7 +162,7 @@ function RainbowPattern() {
           <stop offset="100%" stopColor="#A29BFE" stopOpacity="0.25" />
         </linearGradient>
       </defs>
-      <rect x="0" y="0" width="64" height="64" fill="url(#pat-rainbow)" />
+      <rect x="0" y="0" width="64" height="64" fill={`url(#${id})`} />
     </>
   );
 }

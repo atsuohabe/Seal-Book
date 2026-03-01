@@ -3,19 +3,12 @@ import type { Decoration } from '../../types';
 interface DecorationOverlayProps {
   decoration: Decoration;
   color: string;
-  size: number;
 }
 
-export function DecorationOverlay({ decoration, color, size }: DecorationOverlayProps) {
+export function DecorationOverlay({ decoration, color }: DecorationOverlayProps) {
   if (decoration === 'none') return null;
-
   return (
-    <svg
-      viewBox="0 0 64 64"
-      width={size}
-      height={size}
-      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
-    >
+    <>
       {decoration === 'bow' && <BowDecoration color={color} />}
       {decoration === 'crown' && <CrownDecoration color={color} />}
       {decoration === 'wings' && <WingsDecoration color={color} />}
@@ -24,7 +17,7 @@ export function DecorationOverlay({ decoration, color, size }: DecorationOverlay
       {decoration === 'tiara' && <TiaraDecoration color={color} />}
       {decoration === 'flower_wreath' && <FlowerWreathDecoration color={color} />}
       {decoration === 'scarf' && <ScarfDecoration color={color} />}
-    </svg>
+    </>
   );
 }
 
@@ -41,11 +34,7 @@ function BowDecoration({ color }: { color: string }) {
 function CrownDecoration({ color }: { color: string }) {
   return (
     <g>
-      <polygon
-        points="18,14 22,2 28,10 32,0 36,10 42,2 46,14"
-        fill={color}
-        opacity="0.85"
-      />
+      <polygon points="18,14 22,2 28,10 32,0 36,10 42,2 46,14" fill={color} opacity="0.85" />
       <rect x="18" y="12" width="28" height="4" rx="1" fill={color} opacity="0.85" />
       <circle cx="22" cy="3" r="1.5" fill="#FFE66D" />
       <circle cx="32" cy="1" r="1.5" fill="#FFE66D" />
@@ -57,16 +46,8 @@ function CrownDecoration({ color }: { color: string }) {
 function WingsDecoration({ color }: { color: string }) {
   return (
     <g opacity="0.7">
-      {/* Left wing */}
-      <path
-        d="M8 32 C2 24 2 16 10 20 C6 18 4 12 12 16 C8 14 8 8 14 14 L16 32 Z"
-        fill={color}
-      />
-      {/* Right wing */}
-      <path
-        d="M56 32 C62 24 62 16 54 20 C58 18 60 12 52 16 C56 14 56 8 50 14 L48 32 Z"
-        fill={color}
-      />
+      <path d="M8 32 C2 24 2 16 10 20 C6 18 4 12 12 16 C8 14 8 8 14 14 L16 32 Z" fill={color} />
+      <path d="M56 32 C62 24 62 16 54 20 C58 18 60 12 52 16 C56 14 56 8 50 14 L48 32 Z" fill={color} />
     </g>
   );
 }
@@ -74,26 +55,8 @@ function WingsDecoration({ color }: { color: string }) {
 function HaloDecoration({ color }: { color: string }) {
   return (
     <g>
-      <ellipse
-        cx="32"
-        cy="6"
-        rx="14"
-        ry="4"
-        fill="none"
-        stroke={color}
-        strokeWidth="2.5"
-        opacity="0.7"
-      />
-      <ellipse
-        cx="32"
-        cy="6"
-        rx="14"
-        ry="4"
-        fill="none"
-        stroke="#FFFFFF"
-        strokeWidth="1"
-        opacity="0.4"
-      />
+      <ellipse cx="32" cy="6" rx="14" ry="4" fill="none" stroke={color} strokeWidth="2.5" opacity="0.7" />
+      <ellipse cx="32" cy="6" rx="14" ry="4" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.4" />
     </g>
   );
 }
@@ -101,19 +64,7 @@ function HaloDecoration({ color }: { color: string }) {
 function FrameDecoration({ color }: { color: string }) {
   return (
     <g>
-      <rect
-        x="2"
-        y="2"
-        width="60"
-        height="60"
-        rx="8"
-        fill="none"
-        stroke={color}
-        strokeWidth="2.5"
-        strokeDasharray="4 2"
-        opacity="0.6"
-      />
-      {/* Corner dots */}
+      <rect x="2" y="2" width="60" height="60" rx="8" fill="none" stroke={color} strokeWidth="2.5" strokeDasharray="4 2" opacity="0.6" />
       <circle cx="6" cy="6" r="2" fill={color} opacity="0.7" />
       <circle cx="58" cy="6" r="2" fill={color} opacity="0.7" />
       <circle cx="6" cy="58" r="2" fill={color} opacity="0.7" />
@@ -125,15 +76,7 @@ function FrameDecoration({ color }: { color: string }) {
 function TiaraDecoration({ color }: { color: string }) {
   return (
     <g>
-      {/* Tiara band */}
-      <path
-        d="M14,14 Q20,6 26,10 Q32,4 38,10 Q44,6 50,14"
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        opacity="0.8"
-      />
-      {/* Gemstones */}
+      <path d="M14,14 Q20,6 26,10 Q32,4 38,10 Q44,6 50,14" fill="none" stroke={color} strokeWidth="2" opacity="0.8" />
       <circle cx="26" cy="9" r="2" fill="#FFE66D" opacity="0.8" />
       <circle cx="32" cy="5" r="2.5" fill="#FF9FF3" opacity="0.8" />
       <circle cx="38" cy="9" r="2" fill="#74B9FF" opacity="0.8" />
@@ -174,15 +117,9 @@ function FlowerWreathDecoration({ color }: { color: string }) {
 function ScarfDecoration({ color }: { color: string }) {
   return (
     <g opacity="0.75">
-      {/* Scarf band */}
-      <path
-        d="M8,46 Q16,42 24,46 Q32,50 40,46 Q48,42 56,46 L56,52 Q48,48 40,52 Q32,56 24,52 Q16,48 8,52 Z"
-        fill={color}
-      />
-      {/* Fringe left */}
+      <path d="M8,46 Q16,42 24,46 Q32,50 40,46 Q48,42 56,46 L56,52 Q48,48 40,52 Q32,56 24,52 Q16,48 8,52 Z" fill={color} />
       <line x1="10" y1="52" x2="8" y2="58" stroke={color} strokeWidth="1.5" />
       <line x1="14" y1="52" x2="12" y2="58" stroke={color} strokeWidth="1.5" />
-      {/* Fringe right */}
       <line x1="50" y1="52" x2="52" y2="58" stroke={color} strokeWidth="1.5" />
       <line x1="54" y1="52" x2="56" y2="58" stroke={color} strokeWidth="1.5" />
     </g>

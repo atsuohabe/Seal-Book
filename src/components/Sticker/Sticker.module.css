@@ -3,60 +3,26 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
   cursor: grab;
   user-select: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.2),
-    0 2px 4px rgba(0, 0, 0, 0.15),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.1),
-    inset 0 3px 6px rgba(255, 255, 255, 0.35);
-  overflow: hidden;
-}
-
-.stickerBase::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    ellipse 55% 45% at 35% 28%,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.12) 45%,
-    transparent 65%
-  );
-  pointer-events: none;
-  z-index: 2;
-}
-
-.stickerBase::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 1px 2px rgba(0, 0, 0, 0.08);
-  pointer-events: none;
-  z-index: 3;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  filter:
+    drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2))
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.12));
 }
 
 .stickerBase:hover {
   transform: scale(1.08) translateY(-2px);
-  box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.22),
-    0 4px 8px rgba(0, 0, 0, 0.12),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.1),
-    inset 0 3px 6px rgba(255, 255, 255, 0.35);
+  filter:
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.22))
+    drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
 }
 
 .dragging {
   transform: scale(1.15) translateY(-4px);
-  box-shadow:
-    0 14px 28px rgba(0, 0, 0, 0.28),
-    0 6px 12px rgba(0, 0, 0, 0.15);
+  filter:
+    drop-shadow(0 14px 20px rgba(0, 0, 0, 0.28))
+    drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15));
   cursor: grabbing;
   z-index: 1000;
   opacity: 0.9;
@@ -89,50 +55,28 @@
 }
 
 .superRare {
-  box-shadow:
-    0 4px 12px rgba(255, 215, 0, 0.4),
-    0 2px 6px rgba(255, 215, 0, 0.3),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.1),
-    inset 0 3px 8px rgba(255, 255, 255, 0.5);
+  filter:
+    drop-shadow(0 4px 8px rgba(255, 215, 0, 0.45))
+    drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
 }
 
-.superRare::before {
-  background: radial-gradient(
-    ellipse 55% 45% at 35% 28%,
-    rgba(255, 255, 255, 0.7) 0%,
-    rgba(255, 215, 0, 0.2) 45%,
-    transparent 65%
-  );
+.superRare:hover {
+  filter:
+    drop-shadow(0 8px 14px rgba(255, 215, 0, 0.5))
+    drop-shadow(0 4px 6px rgba(255, 215, 0, 0.35));
 }
 
 .rare {
-  box-shadow:
-    0 4px 10px rgba(162, 155, 254, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.15),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.1),
-    inset 0 3px 6px rgba(255, 255, 255, 0.4);
+  filter:
+    drop-shadow(0 4px 8px rgba(162, 155, 254, 0.4))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 }
 
-.shapeCircle { border-radius: 50%; }
-.shapeStar { border-radius: 12px; }
-.shapeHeart { border-radius: 12px; }
-.shapeFlower { border-radius: 50%; }
-.shapeAnimalFace { border-radius: 42% 42% 50% 50%; }
-.shapeFood { border-radius: 20% 20% 40% 40%; }
-.shapeDiamond { border-radius: 8px; transform: rotate(0deg); }
-.shapeCloud { border-radius: 40%; }
-.shapeMoon { border-radius: 50%; }
-.shapeRibbon { border-radius: 12px; }
-.shapeCat { border-radius: 42% 42% 50% 50%; }
-.shapeBunny { border-radius: 42% 42% 50% 50%; }
-.shapeBear { border-radius: 42% 42% 50% 50%; }
-.shapePenguin { border-radius: 40% 40% 50% 50%; }
-.shapeCherry { border-radius: 50%; }
-.shapeStrawberry { border-radius: 40% 40% 50% 50%; }
-.shapeIceCream { border-radius: 30% 30% 12px 12px; }
-.shapeRainbow { border-radius: 50% 50% 12px 12px; }
-.shapeShootingStar { border-radius: 12px; }
-.shapeButterfly { border-radius: 50%; }
+.rare:hover {
+  filter:
+    drop-shadow(0 8px 14px rgba(162, 155, 254, 0.45))
+    drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
+}
 
 .stickerContent {
   position: relative;
