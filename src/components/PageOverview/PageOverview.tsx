@@ -39,6 +39,9 @@ function ScaledThumbnail({ children }: { children: React.ReactNode }) {
   return (
     <div ref={containerRef} className={styles.thumbnailContent}>
       <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
         width: 540,
         height: 720,
         transformOrigin: 'top left',

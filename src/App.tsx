@@ -14,6 +14,7 @@ import { StickerActionMenu } from './components/StickerActionMenu/StickerActionM
 import { AlbumCover } from './components/AlbumCover/AlbumCover';
 import { CoverPicker } from './components/CoverPicker/CoverPicker';
 import { PageOverview } from './components/PageOverview/PageOverview';
+import { FullscreenViewer } from './components/FullscreenViewer/FullscreenViewer';
 import styles from './App.module.css';
 
 export interface DragInfo {
@@ -65,6 +66,7 @@ export default function App() {
   const [showingCover, setShowingCover] = useState(true);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [viewMode, setViewMode] = useState<'single' | 'overview'>('single');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const albumRef = useRef<HTMLDivElement>(null);
 
   const ensureTimerStarted = useCallback(() => {
@@ -183,6 +185,10 @@ export default function App() {
     setStickerMenu(null);
   }, []);
 
+  const handleFullscreen = useCallback(() => {
+    setIsFullscreen(true);
+  }, []);
+
   const handleCoverDesignSelect = useCallback((design: CoverDesign) => {
     setCoverDesign(design);
     setShowCoverPicker(false);
@@ -242,6 +248,7 @@ export default function App() {
           onNext={handleNext}
           onAddPage={addPage}
           onToggleOverview={toggleOverview}
+          onFullscreen={handleFullscreen}
         />
       </div>
 
@@ -299,6 +306,17 @@ export default function App() {
 
       {gachaStickers && (
         <GachaModal stickers={gachaStickers} onClose={() => setGachaStickers(null)} />
+      )}
+
+      {isFullscreen && (
+        <FullscreenViewer
+          pages={state.pages}
+          currentPageIndex={state.currentPageIndex}
+          showingCover={showingCover}
+          coverDesign={state.coverDesign}
+          coverTitle={state.coverTitle}
+          onClose={() => setIsFullscreen(false)}
+        />
       )}
     </div>
   );

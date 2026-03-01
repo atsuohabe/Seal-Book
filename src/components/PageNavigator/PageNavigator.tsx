@@ -10,11 +10,12 @@ interface PageNavigatorProps {
   onNext: () => void;
   onAddPage: () => void;
   onToggleOverview: () => void;
+  onFullscreen: () => void;
 }
 
 export function PageNavigator({
   currentIndex, totalPages, showingCover, isOverview,
-  onPrev, onNext, onAddPage, onToggleOverview,
+  onPrev, onNext, onAddPage, onToggleOverview, onFullscreen,
 }: PageNavigatorProps) {
   return (
     <div className={styles.nav}>
@@ -49,6 +50,18 @@ export function PageNavigator({
         title={isOverview ? 'もどる' : '一覧'}
       >
         <span className={styles.gridIcon} />
+      </button>
+      <button
+        className={styles.fullscreenButton}
+        onClick={onFullscreen}
+        title="全画面で見る"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="1,5 1,1 5,1" />
+          <polyline points="11,1 15,1 15,5" />
+          <polyline points="15,11 15,15 11,15" />
+          <polyline points="5,15 1,15 1,11" />
+        </svg>
       </button>
     </div>
   );
