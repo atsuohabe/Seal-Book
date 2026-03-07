@@ -47,3 +47,99 @@
   text-align: center;
   padding: 4px 0;
 }
+
+.profileButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(162, 155, 254, 0.08);
+  color: #A29BFE;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.profileButton:hover {
+  background: rgba(162, 155, 254, 0.18);
+}
+
+/* First-launch screen */
+.firstLaunch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #fff8f0, #f0ecff);
+}
+
+.firstLaunchCard {
+  background: #fff;
+  border-radius: 24px;
+  padding: 36px 28px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.firstLaunchTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #555;
+}
+
+.firstLaunchSubtitle {
+  font-size: 14px;
+  color: #999;
+}
+
+.firstLaunchInput {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.firstLaunchInput:focus {
+  border-color: #A29BFE;
+}
+
+.firstLaunchInputError {
+  border-color: #FF7675 !important;
+}
+
+.firstLaunchError {
+  font-size: 12px;
+  color: #FF7675;
+}
+
+.firstLaunchButton {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #A29BFE, #8B7FE8);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(162, 155, 254, 0.4);
+  margin-top: 4px;
+}
+
+.firstLaunchButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(162, 155, 254, 0.5);
+}

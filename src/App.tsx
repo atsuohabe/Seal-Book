@@ -1,9 +1,15 @@
-import { useState, useCallback, useRef } from 'react';
-import type { StickerDef, CoverDesign } from './types';
-import { useGameState } from './hooks/useGameState';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { StickerDef, CoverDesign, UserProfile, GameState } from './types';
+import { useGameState, createInitialState } from './hooks/useGameState';
 import { useTimer } from './hooks/useTimer';
 import { rollGacha } from './utils/gacha';
 import { getTodayDateString } from './utils/dateUtils';
+import {
+  loadProfiles, saveProfiles,
+  getActiveProfileName, setActiveProfileName,
+  loadProfileState, saveProfileState, deleteProfileData,
+  migrateLegacyData,
+} from './utils/storage';
 import { AlbumPage } from './components/AlbumPage/AlbumPage';
 import { StickerTray } from './components/StickerTray/StickerTray';
 import { StickerView } from './components/Sticker/Sticker';
@@ -15,6 +21,7 @@ import { AlbumCover } from './components/AlbumCover/AlbumCover';
 import { CoverPicker } from './components/CoverPicker/CoverPicker';
 import { PageOverview } from './components/PageOverview/PageOverview';
 import { FullscreenViewer } from './components/FullscreenViewer/FullscreenViewer';
+import { ProfileSelector } from './components/ProfileSelector/ProfileSelector';
 import styles from './App.module.css';
 
 export interface DragInfo {
@@ -35,7 +42,14 @@ interface StickerMenuInfo {
   y: number;
 }
 
-export default function App() {
+// ── Game content (per-profile, remounted on profile switch via key prop) ───
+
+interface GameContentProps {
+  profileName: string;
+  onOpenProfileSelector: () => void;
+}
+
+function GameContent({ profileName, onOpenProfileSelector }: GameContentProps) {
   const {
     state,
     currentPage,
@@ -53,7 +67,7 @@ export default function App() {
     setCoverDesign,
     setCoverTitle,
     nameSticker,
-  } = useGameState();
+  } = useGameState(profileName);
 
   const { remainingMinutes, remainingSeconds, isTimeUp, start, isRunning } = useTimer(
     state.todayPlayTimeMs,
@@ -105,7 +119,6 @@ export default function App() {
       return;
     }
 
-    // Detect tap on a placed sticker (no movement, short duration)
     if (drag.source === 'page' && drag.instanceId && !drag.hasMoved) {
       const elapsed = Date.now() - drag.startTime;
       if (elapsed < 300) {
@@ -185,10 +198,6 @@ export default function App() {
     setStickerMenu(null);
   }, []);
 
-  const handleFullscreen = useCallback(() => {
-    setIsFullscreen(true);
-  }, []);
-
   const handleCoverDesignSelect = useCallback((design: CoverDesign) => {
     setCoverDesign(design);
     setShowCoverPicker(false);
@@ -204,7 +213,13 @@ export default function App() {
       style={{ touchAction: drag ? 'none' : undefined }}
     >
       <header className={styles.header}>
-        <div className={styles.title}>シールちょう</div>
+        <button className={styles.profileButton} onClick={onOpenProfileSelector} title="ユーザーをきりかえる">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+        </button>
+        <div className={styles.title}>{profileName}のシールちょう</div>
         <Timer
           remainingMinutes={remainingMinutes}
           remainingSeconds={remainingSeconds}
@@ -248,7 +263,7 @@ export default function App() {
           onNext={handleNext}
           onAddPage={addPage}
           onToggleOverview={toggleOverview}
-          onFullscreen={handleFullscreen}
+          onFullscreen={() => setIsFullscreen(true)}
         />
       </div>
 
@@ -319,5 +334,143 @@ export default function App() {
         />
       )}
     </div>
+  );
+}
+
+// ── First-launch screen ────────────────────────────────────────────────────
+
+function FirstLaunchScreen({ onCreate }: { onCreate: (name: string) => void }) {
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+
+  function handleSubmit() {
+    const trimmed = name.trim();
+    if (!trimmed) { setError('なまえをにゅうりょくしてください'); return; }
+    onCreate(trimmed);
+  }
+
+  return (
+    <div className={styles.firstLaunch}>
+      <div className={styles.firstLaunchCard}>
+        <div className={styles.firstLaunchTitle}>🌟 シールちょうへようこそ！</div>
+        <div className={styles.firstLaunchSubtitle}>あなたのなまえをおしえてください</div>
+        <input
+          className={`${styles.firstLaunchInput} ${error ? styles.firstLaunchInputError : ''}`}
+          type="text"
+          value={name}
+          onChange={e => { setName(e.target.value); setError(''); }}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+          placeholder="なまえ（10もじまで）"
+          maxLength={10}
+          autoFocus
+        />
+        {error && <div className={styles.firstLaunchError}>{error}</div>}
+        <button className={styles.firstLaunchButton} onClick={handleSubmit}>
+          はじめる！
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── App shell ──────────────────────────────────────────────────────────────
+
+export default function App() {
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [activeProfile, setActiveProfile] = useState<string | null>(null);
+  const [showProfileSelector, setShowProfileSelector] = useState(false);
+  const [friendViewing, setFriendViewing] = useState<{ name: string; state: GameState } | null>(null);
+  const [initialized, setInitialized] = useState(false);
+
+  // Initialize: migrate legacy data, load profiles
+  useEffect(() => {
+    migrateLegacyData();
+    const loaded = loadProfiles();
+    setProfiles(loaded);
+    if (loaded.length > 0) {
+      const active = getActiveProfileName();
+      const validActive = active && loaded.some(p => p.name === active) ? active : loaded[0].name;
+      setActiveProfileName(validActive);
+      setActiveProfile(validActive);
+    }
+    setInitialized(true);
+  }, []);
+
+  const handleCreateProfile = useCallback((name: string) => {
+    const newProfile: UserProfile = { name, createdAt: new Date().toISOString() };
+    const updated = [...profiles, newProfile];
+    saveProfiles(updated);
+    saveProfileState(name, createInitialState());
+    setActiveProfileName(name);
+    setProfiles(updated);
+    setActiveProfile(name);
+  }, [profiles]);
+
+  const handleSelectProfile = useCallback((name: string) => {
+    setActiveProfileName(name);
+    setActiveProfile(name);
+  }, []);
+
+  const handleDeleteProfile = useCallback((name: string) => {
+    deleteProfileData(name);
+    const updated = profiles.filter(p => p.name !== name);
+    saveProfiles(updated);
+    setProfiles(updated);
+    if (activeProfile === name) {
+      const next = updated[0]?.name ?? null;
+      if (next) setActiveProfileName(next);
+      setActiveProfile(next);
+    }
+  }, [profiles, activeProfile]);
+
+  const handleViewAlbum = useCallback((name: string) => {
+    const state = loadProfileState(name);
+    if (state) setFriendViewing({ name, state });
+  }, []);
+
+  // Still initializing
+  if (!initialized) return null;
+
+  // First launch: no profiles yet
+  if (profiles.length === 0) {
+    return <FirstLaunchScreen onCreate={handleCreateProfile} />;
+  }
+
+  // Profile exists but not yet active (edge case)
+  if (!activeProfile) return null;
+
+  return (
+    <>
+      {/* key={activeProfile} forces full remount on profile switch */}
+      <GameContent
+        key={activeProfile}
+        profileName={activeProfile}
+        onOpenProfileSelector={() => setShowProfileSelector(true)}
+      />
+
+      {showProfileSelector && (
+        <ProfileSelector
+          profiles={profiles}
+          activeProfile={activeProfile}
+          onSelect={handleSelectProfile}
+          onCreate={handleCreateProfile}
+          onDelete={handleDeleteProfile}
+          onViewAlbum={handleViewAlbum}
+          onClose={() => setShowProfileSelector(false)}
+        />
+      )}
+
+      {friendViewing && (
+        <FullscreenViewer
+          pages={friendViewing.state.pages}
+          currentPageIndex={0}
+          showingCover={true}
+          coverDesign={friendViewing.state.coverDesign}
+          coverTitle={friendViewing.state.coverTitle}
+          friendName={friendViewing.name}
+          onClose={() => setFriendViewing(null)}
+        />
+      )}
+    </>
   );
 }

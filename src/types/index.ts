@@ -56,6 +56,11 @@ export interface AlbumPage {
   stickers: PlacedSticker[];
 }
 
+export interface UserProfile {
+  name: string;
+  createdAt: string;
+}
+
 export interface GameState {
   pages: AlbumPage[];
   currentPageIndex: number;

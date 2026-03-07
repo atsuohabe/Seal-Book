@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { GameState, AlbumPage, PlacedSticker, StickerDef, CoverDesign, NamedCharacter } from '../types';
-import { loadGameState, saveGameState } from '../utils/storage';
+import type { GameState, AlbumPage, PlacedSticker, StickerDef, CoverDesign } from '../types';
+import { loadProfileState, saveProfileState } from '../utils/storage';
 import { getTodayDateString, isSameDay } from '../utils/dateUtils';
 import { INITIAL_PAGES, MAX_PAGES } from '../data/constants';
 
-function createInitialState(): GameState {
+export function createInitialState(): GameState {
   const pages: AlbumPage[] = [];
   for (let i = 0; i < INITIAL_PAGES; i++) {
     pages.push({ id: i, backgroundColor: '#faf8f0', stickers: [] });
@@ -32,29 +32,31 @@ function migrateStickerDef(s: StickerDef): StickerDef {
   };
 }
 
-export function useGameState() {
-  const [state, setState] = useState<GameState>(() => {
-    const saved = loadGameState();
-    if (saved) {
-      // Migrations
-      if (!saved.coverDesign) saved.coverDesign = 'pastel_flowers';
-      if (!saved.coverTitle) saved.coverTitle = 'わたしの\nシールちょう';
-      if (!saved.namedCharacters) saved.namedCharacters = [];
-      // Migrate stickers
-      saved.inventory = (saved.inventory ?? []).map(migrateStickerDef);
-      saved.collectedStickers = (saved.collectedStickers ?? []).map(migrateStickerDef);
-      saved.pages = (saved.pages ?? []).map(p => ({
-        ...p,
-        stickers: p.stickers.map(ps => ({ ...ps, sticker: migrateStickerDef(ps.sticker) })),
-      }));
-      const today = getTodayDateString();
-      if (!isSameDay(saved.lastPlayDate)) {
-        return { ...saved, todayPlayTimeMs: 0, lastPlayDate: today };
-      }
-      return saved;
+function loadAndMigrate(profileName: string): GameState {
+  const saved = loadProfileState(profileName);
+  if (saved) {
+    // Field migrations
+    if (!saved.coverDesign) saved.coverDesign = 'pastel_flowers';
+    if (!saved.coverTitle) saved.coverTitle = 'わたしの\nシールちょう';
+    if (!saved.namedCharacters) saved.namedCharacters = [];
+    // Sticker migrations
+    saved.inventory = (saved.inventory ?? []).map(migrateStickerDef);
+    saved.collectedStickers = (saved.collectedStickers ?? []).map(migrateStickerDef);
+    saved.pages = (saved.pages ?? []).map(p => ({
+      ...p,
+      stickers: p.stickers.map(ps => ({ ...ps, sticker: migrateStickerDef(ps.sticker) })),
+    }));
+    const today = getTodayDateString();
+    if (!isSameDay(saved.lastPlayDate)) {
+      return { ...saved, todayPlayTimeMs: 0, lastPlayDate: today };
     }
-    return createInitialState();
-  });
+    return saved;
+  }
+  return createInitialState();
+}
+
+export function useGameState(profileName: string) {
+  const [state, setState] = useState<GameState>(() => loadAndMigrate(profileName));
 
   const saveTimeoutRef = useRef<number | null>(null);
 
@@ -62,12 +64,12 @@ export function useGameState() {
   useEffect(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = window.setTimeout(() => {
-      saveGameState(state);
+      saveProfileState(profileName, state);
     }, 300);
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [state]);
+  }, [state, profileName]);
 
   const goToPage = useCallback((index: number) => {
     setState(prev => {
@@ -206,7 +208,7 @@ export function useGameState() {
       const alreadyNamed = prev.namedCharacters.some(
         nc => nc.originalStickerId === placed.sticker.id
       );
-      const newCharacter: NamedCharacter = {
+      const newCharacter = {
         name: customName,
         baseShape: placed.sticker.baseShape,
         primaryColor: placed.sticker.primaryColor,

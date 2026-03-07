@@ -11,6 +11,7 @@ interface FullscreenViewerProps {
   coverDesign: CoverDesign;
   coverTitle: string;
   onClose: () => void;
+  friendName?: string;
 }
 
 const noop = () => {};
@@ -22,6 +23,7 @@ export function FullscreenViewer({
   coverDesign,
   coverTitle,
   onClose,
+  friendName,
 }: FullscreenViewerProps) {
   // -1 = cover, 0..n = page index
   const [viewIndex, setViewIndex] = useState(showingCover ? -1 : currentPageIndex);
@@ -122,6 +124,7 @@ export function FullscreenViewer({
 
       {/* Page indicator */}
       <div className={styles.pageIndicator}>
+        {friendName && <span className={styles.friendLabel}>{friendName}のシールちょう — </span>}
         {viewIndex === -1 ? '表紙' : `${viewIndex + 1} / ${totalPages}`}
       </div>
     </div>

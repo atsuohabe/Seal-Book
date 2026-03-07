@@ -93,4 +93,9 @@
   font-size: 14px;
   z-index: 10001;
   user-select: none;
+  white-space: nowrap;
+}
+
+.friendLabel {
+  color: rgba(255, 200, 255, 0.9);
 }
